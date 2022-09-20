@@ -1,0 +1,38 @@
+<html>
+
+<head>
+    <link href="chain.css">
+    <script src ="chain.js"></script>
+</head>
+
+<body>
+  <h3>Input url into field</h3>
+<!-- -->
+  <input type="text" id="inputbox" value="
+https://en.wikipedia.org/wiki/Main_Page">
+  <button onclick="LoadFromBox()">Load</button>
+    <!--<button onclick="LoadFromlink()">↺</button>-->
+  <button type="button" onclick="previouspage()">⇐</button>
+
+  <button type="button" class="collapsible">Debug Tools / History</button>
+  <div class="content">
+    <table id="history">
+      <tr>
+        <th>URL</th>
+        <th>Link</th>
+        <th>Clear</th>
+      </tr>
+    </table>
+    <button type="button" onclick="ClearSearchHistory()">clear search history</button>
+    
+    <button onclick="  document.getElementById('dump').innerHTML = Ihtml.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+   return '&#'+i.charCodeAt(0)+';'; 
+});;">Dump HTML</button>
+    <code id=dump></code>
+  </div>
+  <iframe srcdoc="" id="iframe" width=1350 height=800 sandbox="allow-forms allow pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation" target="_blank">
+  </iframe>
+
+</body>
+
+</html>
