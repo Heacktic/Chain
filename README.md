@@ -1,2 +1,2 @@
 # Chain
-A frontend for http loader for api.allorigins.win
+A frontend http loader for api.allorigins.win
