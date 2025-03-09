@@ -5,7 +5,6 @@ var frame = document.getElementsByClassName("iframe");
 //var loadtable = document.getElementById("loadtable");
 
 function LoadFromBox() {
-  //load whatever is in the text box
   if (Iurl != "") path.unshift(Iurl);
   let url = document.getElementById("inputbox").value;
   load(url);
@@ -14,7 +13,7 @@ function LoadFromBox() {
 
 function load(url) {
   getsiteDATA(url).then((html) => {
-    assignHTMLframe(getexternal(html));
+    document.getElementById("iframe").srcdoc = getexternal(html);
   });
 }
 
@@ -41,10 +40,6 @@ async function getBlob(url) {
       return ObjectURL;
     });
   return response;
-}
-
-function assignHTMLframe(html) {
-  document.getElementById("iframe").srcdoc = html;
 }
 
 function getexternal(html) {

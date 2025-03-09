@@ -22,10 +22,6 @@
       </tr>
     </table>
     <button type="button" onclick="ClearSearchHistory()">clear search history</button>
-
-    <button onclick="  document.getElementById('dump').innerHTML = Ihtml.replace(/[\u00A0-\u9999<>\&]/gim, function(i) 
-    {return '&#'+i.charCodeAt(0)+';'; });;">Dump HTML</button>
-    <code id=dump></code>
   </div>
   <iframe srcdoc="" id="iframe" width=1350 height=800
     sandbox="allow-forms allow pointer-lock allow-popups allow-same-origin allow-scripts allow-top-navigation"
