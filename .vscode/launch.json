@@ -9,7 +9,8 @@
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
-            "file": "${workspaceFolder}/chain.html"
+            "file": "${workspaceFolder}/chain.html",
+            "firefoxExecutable": "/Program Files/Waterfox/waterfox.exe"
         },
         {
             "name": "Launch localhost",

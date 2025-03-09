@@ -1,6 +1,4 @@
-let Ihtml; //Iframes HTML
 let Iurl = ""; //Iframes URL
-var i;
 var path = [];
 var coll = document.getElementsByClassName("collapsible");
 var frame = document.getElementsByClassName("iframe");
@@ -8,9 +6,7 @@ var frame = document.getElementsByClassName("iframe");
 
 function LoadFromBox() {
   //load whatever is in the text box
-  if (Iurl != "") {
-    path.unshift(Iurl);
-  }
+  if (Iurl != "") path.unshift(Iurl);
   let url = document.getElementById("inputbox").value;
   load(url);
   addhistory(url);
@@ -18,27 +14,29 @@ function LoadFromBox() {
 
 function load(url) {
   getsiteDATA(url).then((html) => {
-    html = getexternal(html);
-    assignHTMLframe(html);
+    assignHTMLframe(getexternal(html));
   });
 }
 
+async function getData(url) {
+  try{
+    return fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+  }catch(_){
+    console.log(url);
+  }
+}
+
 async function getsiteDATA(url) {
-  const response = await fetch(
-    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`
-  ).then((response) => {
+  const response = await getData(url).then((response) => {
     Iurl = decodeURIComponent(response.url.slice(35));
     if (response.ok) return response.json();
   });
   return response.contents;
 }
 
-async function getDATA(url) {
-  const response = await fetch(
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-  )
-    .then((response) => response.blob())
-    .then((Blob) => {
+async function getBlob(url) {
+  const response = await getData(url)
+    .then((response) => response.blob()).then((Blob) => {
       const ObjectURL = URL.createObjectURL(Blob);
       return ObjectURL;
     });
@@ -47,7 +45,6 @@ async function getDATA(url) {
 
 function assignHTMLframe(html) {
   document.getElementById("iframe").srcdoc = html;
-  Ihtml = html;
 }
 
 function getexternal(html) {
@@ -99,7 +96,7 @@ function getexternal(html) {
         }
         //if arttribute is an SRC download content as blob
         if ((atri[i] = "src")) {
-          getDATA(link).then((ObjectURL) => {
+          getBlob(link).then((ObjectURL) => {
             link = ObjectURL;
           });
         }
@@ -108,8 +105,8 @@ function getexternal(html) {
         if ((atri[i] = "href")) {
           try {
             new URL(link)
-          } catch (_){
-            alert();break;
+          } catch (_) {
+            alert(); break;
           }
           //this is a message send command wrapped in a data URI
           link =
@@ -127,11 +124,15 @@ function getexternal(html) {
 
 //window.parent.postMessage('message', '*');
 window.addEventListener("message", function (e) {
-  var url = JSON.parse(e.data).message;
+  try {
+    var url = JSON.parse(e.data).message;
+  } catch (_) {
+    console.log(e.data)
+  }
   try {
     new URL(url);
   } catch (_) {
-  return 0;
+    return;
   }
   if (Iurl != "") {
     path.unshift(Iurl);
