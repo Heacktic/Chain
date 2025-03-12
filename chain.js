@@ -58,25 +58,23 @@ function getexternal(html) {
     var attribute = attributelookup(elements[j].tagName)
     var attributevalue = elements[j].getAttribute(attribute);
 
-    //the worst code ever written, i dont know why this works but it does
+    //convert URIs to URLs TODO find a way that dosent envolve using try catch
     try {
       new URL(attributevalue);
     } catch (_) {
       attributevalue = new URL(attributevalue, domain);
     }
-    if ((attribute = "src")) {
+    if ((attribute == "src")) {
       getBlob(attributevalue).then((ObjectURL) => {
         console.log(ObjectURL)
         attributevalue = ObjectURL;
       });
     }
-    if ((attribute = "href")) {
-      try {
-        new URL(attributevalue)
-      } catch (_) {
-        alert(); break;
-      }
-
+    if ((attribute == "href" && elements[j].tagName =="A")) {
+      attributevalue =
+      "javascript:window.parent.postMessage('" +
+      JSON.stringify({ message: (new URL(attributevalue, domain)) }) +
+      "','*');";
     }    
     elements[j].setAttribute(attribute,attributevalue);
   }
