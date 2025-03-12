@@ -1,0 +1,7 @@
+https://scp-wiki.wikidot.com/
+
+
+        arttributevalue =
+          "javascript:window.parent.postMessage('" +
+          JSON.stringify({ message: (new URL(attributevalue, domain)) }) +
+          "','*');";

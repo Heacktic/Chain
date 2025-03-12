@@ -13,14 +13,15 @@ function LoadFromBox() {
 
 function load(url) {
   getsiteDATA(url).then((html) => {
+    //document.getElementById("iframe").srcdoc = getexternal(html);
     document.getElementById("iframe").srcdoc = getexternal(html);
   });
 }
 
 async function getData(url) {
-  try{
+  try {
     return fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-  }catch(_){
+  } catch (_) {
     console.log(url);
   }
 }
@@ -46,76 +47,44 @@ function getexternal(html) {
   let domain = new URL(Iurl);
   var parser = new DOMParser();
   var doc = parser.parseFromString(html, "text/html");
-  //change all URIs to URLS
-  var ele = [
-    "a",
-    "area",
-    "base",
-    "link",
-    "audio",
-    "embed",
-    "iframe",
-    "img",
-    "input",
-    "script",
-    "source",
-    "track",
-    "video"
-  ];
-  var atri = [
-    "href",
-    "href",
-    "href",
-    "href",
-    "src",
-    "src",
-    "src",
-    "src",
-    "src",
-    "src",
-    "src",
-    "src",
-    "src"
-  ];
-  //turn all URIs into URLs
-  for (var i = 0; i < ele.length; i++) {
-    var links = [].slice.apply(doc.getElementsByTagName(ele[i]));
-    for (var j = 0; j < links.length; j++) {
-      if (links[j].hasAttribute(atri[i])) {
-        var link = links[j].getAttribute(atri[i]);
-        //turn uris into urls
-        try {
-          new URL(link);
-        } catch (_) {
-          link = new URL(link, domain);
-        }
-        //if arttribute is an SRC download content as blob
-        if ((atri[i] = "src")) {
-          getBlob(link).then((ObjectURL) => {
-            link = ObjectURL;
-          });
-        }
+  const attributelookup = (x) => (x=="A"||x=="AREA" ||x=="BASE" ||x=="LINK" ? "href" : "src");
+  elementdict = ["a", "area", "base", "link", "audio", "embed", "iframe", "img", "input", "script", "source", "track", "video"];
+  elements = [];
+  //get a list of all elements with a tag in tags and filter our non href and src tags
+  for (var i = 0; i < elementdict.length; i++)
+    elements.push.apply(elements, doc.getElementsByTagName(elementdict[i]));
+  elements = elements.filter((element) => element.hasAttribute("href") || element.hasAttribute("src"))
+  for (var j = 0; j < elements.length; j++) {
+    var attribute = attributelookup(elements[j].tagName)
+    var attributevalue = elements[j].getAttribute(attribute);
 
-        //if attribute is a url setup sending url to parent
-        if ((atri[i] = "href")) {
-          try {
-            new URL(link)
-          } catch (_) {
-            alert(); break;
-          }
-          //this is a message send command wrapped in a data URI
-          link =
-            "javascript:window.parent.postMessage('" +
-            JSON.stringify({ message: link }) +
-            "','*');";
-        }
-        links[j].setAttribute(atri[i], link);
-      }
+    //the worst code ever written, i dont know why this works but it does
+    try {
+      new URL(attributevalue);
+    } catch (_) {
+      attributevalue = new URL(attributevalue, domain);
     }
+    if ((attribute = "src")) {
+      getBlob(attributevalue).then((ObjectURL) => {
+        console.log(ObjectURL)
+        attributevalue = ObjectURL;
+      });
+    }
+    if ((attribute = "href")) {
+      try {
+        new URL(attributevalue)
+      } catch (_) {
+        alert(); break;
+      }
+
+    }    
+    elements[j].setAttribute(attribute,attributevalue);
   }
   html = doc.documentElement.innerHTML;
   return html;
 }
+
+
 
 //window.parent.postMessage('message', '*');
 window.addEventListener("message", function (e) {
@@ -174,3 +143,4 @@ function ClearSearchHistory() {
     path = [];
   }
 }
+
