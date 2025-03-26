@@ -2,7 +2,6 @@ let Iurl = ""; //Iframes URL
 var path = [];
 var coll = document.getElementsByClassName("collapsible");
 var frame = document.getElementsByClassName("iframe");
-//var loadtable = document.getElementById("loadtable");
 
 function LoadFromBox() {
   if (Iurl != "") path.unshift(Iurl);
@@ -13,7 +12,6 @@ function LoadFromBox() {
 
 function load(url) {
   getsiteDATA(url).then((html) => {
-    //document.getElementById("iframe").srcdoc = getexternal(html);
     document.getElementById("iframe").srcdoc = getexternal(html);
   });
 }
@@ -47,7 +45,6 @@ function getexternal(html) {
   let domain = new URL(Iurl);
   var parser = new DOMParser();
   var doc = parser.parseFromString(html, "text/html");
-  const attributelookup = (x) => (x=="A"||x=="AREA" ||x=="BASE" ||x=="LINK" ? "href" : "src");
   elementdict = ["a", "area", "base", "link", "audio", "embed", "iframe", "img", "input", "script", "source", "track", "video"];
   elements = [];
   //get a list of all elements with a tag in tags and filter our non href and src tags
@@ -55,22 +52,19 @@ function getexternal(html) {
     elements.push.apply(elements, doc.getElementsByTagName(elementdict[i]));
   elements = elements.filter((element) => element.hasAttribute("href") || element.hasAttribute("src"))
   for (var j = 0; j < elements.length; j++) {
-    var attribute = attributelookup(elements[j].tagName)
+    var attribute = (elements[j].tagName=="A"||elements[j].tagName=="AREA"||elements[j].tagName=="BASE"||elements[j].tagName=="LINK"?"href":"src");
     var attributevalue = elements[j].getAttribute(attribute);
-
     //convert URIs to URLs TODO find a way that dosent envolve using try catch
     try {
       new URL(attributevalue);
     } catch (_) {
       attributevalue = new URL(attributevalue, domain);
     }
-    if ((attribute == "src")) {
+    if (attribute == "src") {
       getBlob(attributevalue).then((ObjectURL) => {
-        console.log(ObjectURL)
-        attributevalue = ObjectURL;
-      });
+        attributevalue = ObjectURL;});
     }
-    if ((attribute == "href" && elements[j].tagName =="A")) {
+    if (attribute == "href" && elements[j].tagName =="A") {
       attributevalue =
       "javascript:window.parent.postMessage('" +
       JSON.stringify({ message: (new URL(attributevalue, domain)) }) +
@@ -82,28 +76,18 @@ function getexternal(html) {
   return html;
 }
 
-
-
-//window.parent.postMessage('message', '*');
 window.addEventListener("message", function (e) {
   try {
     var url = JSON.parse(e.data).message;
   } catch (_) {
     console.log(e.data)
   }
-  try {
-    new URL(url);
-  } catch (_) {
-    return;
-  }
-  if (Iurl != "") {
-    path.unshift(Iurl);
-  }
+  if (Iurl != "") path.unshift(Iurl);
   load(url);
   addhistory(url);
 });
 
-//debugging and history --------------------------------------------------
+//debugging and history
 
 for (i = 0; i < coll.length; i++) {
   coll[i].addEventListener("click", function () {
